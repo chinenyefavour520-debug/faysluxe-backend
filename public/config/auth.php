@@ -2,13 +2,15 @@
 function get_authenticated_user() {
     $auth_header = null;
     
-    if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
+    if (isset($_SERVER['HTTP_X_AUTH_TOKEN'])) {
+        $auth_header = $_SERVER['HTTP_X_AUTH_TOKEN'];
+    } elseif (isset($_SERVER['HTTP_AUTHORIZATION'])) {
         $auth_header = $_SERVER['HTTP_AUTHORIZATION'];
     } elseif (isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
         $auth_header = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
     } elseif (function_exists('apache_request_headers')) {
         $headers = apache_request_headers();
-        $auth_header = isset($headers['Authorization']) ? $headers['Authorization'] : (isset($headers['authorization']) ? $headers['authorization'] : null);
+        $auth_header = isset($headers['X-Auth-Token']) ? $headers['X-Auth-Token'] : (isset($headers['Authorization']) ? $headers['Authorization'] : (isset($headers['authorization']) ? $headers['authorization'] : null));
     } else {
         foreach($_SERVER as $key => $value) {
             if (substr($key, 0, 5) == 'HTTP_') {
